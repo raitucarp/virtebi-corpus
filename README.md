@@ -67,6 +67,18 @@ whatdoyou want
 
 You can't do formating(json, xml, text) or pass withprob true, because raw is just kind of raw text. It contains result per line
 
+# TODO
+- Write testing
+- Collect more complete corpus
+- Fix some bugs
+- Refactor some algorithm
+- Doing with whitespace, etc
+
+# Bugs
+Currently, If I want to parse this string "thisisstring" it would output: "thisis string".
+"thisisastring" to thisis a string, etc
+I want you to help me to find out what is going on.
+
 # License
 The MIT License (MIT)
 
