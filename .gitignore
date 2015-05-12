@@ -22,3 +22,9 @@ _testmain.go
 *.exe
 *.test
 *.prof
+
+.idea
+*.iml
+
+virtebi-corpus
+corpus.db
