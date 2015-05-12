@@ -6,7 +6,9 @@ http://stackoverflow.com/questions/195010/how-can-i-split-multiple-joined-words
 
 # How to Install
 If you setup go environment correctly, then you can do this
-``` go install https://github.com/raitucarp/go.virtebi.corpus ```
+```
+go install https://github.com/raitucarp/go.virtebi.corpus 
+```
 
 I do not release binary build yet. Maybe soon
 
@@ -17,7 +19,7 @@ Usage of ./virtebi-corpus:
   -format="text": print result with formating, json, xml or text
   -raw=false: print result in raw per line, it does not use any format
   -withprob=false: print probes value
-example: ./virtebi-corpus -format=json "thisisstring" "facebookiscool" "whatdoyouwant"
+example: ./virtebi-corpus -format=json "facebookiscool" "whatdoyouwant"
 
 ```
 
@@ -26,41 +28,39 @@ Here are some example doing it, with all of command line flag
 
 ## JSON formatting
 ```
-$ ./virtebi-corpus -format=json "thisisstring" "facebookiscool" "whatdoyouwant"
-{"items":[{"origin":"thisisstring","result":"thisis string"},{"origin":"facebookiscool","result":"facebook is cool"},{"origin":"whatdoyouwant","result":"whatdoyou want"}],"Length":3}
+$ ./virtebi-corpus -format=json "facebookiscool" "whatdoyouwant"
+{"items":[{"origin":"facebookiscool","result":"facebook is cool"},{"origin":"whatdoyouwant","result":"whatdoyou want"}],"Length":3}
 
 ```
 
 ## XML formatting
 ```
-$ ./virtebi-corpus -format=xml "thisisstring" "facebookiscool" "whatdoyouwant" 
-<Output><items><origin>thisisstring</origin><result>thisis string</result></items><items><origin>facebookiscool</origin><result>facebook is cool</result></items><items><origin>whatdoyouwant</origin><result>whatdoyou want</result></items><Length>3</Length></Output>
+$ ./virtebi-corpus -format=xml "facebookiscool" "whatdoyouwant" 
+<Output></items><items><origin>facebookiscool</origin><result>facebook is cool</result></items><items><origin>whatdoyouwant</origin><result>whatdoyou want</result></items><Length>3</Length></Output>
 
 ```
 
 ## Text formatting
 this example is withprob value 
 ```
-$ ./virtebi-corpus -withprob "thisisstring" "facebookiscool" "whatdoyouwant"  
+$ ./virtebi-corpus -withprob "facebookiscool" "whatdoyouwant"  
 Length = 3
 Original		Result		Prob
-thisisstring		thisis string		0.000000000039991624894421184
 facebookiscool		facebook is cool		0.000000000030183641197357495
 whatdoyouwant		whatdoyou want		0.00000000007057345569603739
 ```
 
 ## JSON with probvalue
 ```
-$ ./virtebi-corpus -format=json -withprob=true "thisisstring" "facebookiscool" "whatdoyouwant"  
-{"items":[{"origin":"thisisstring","result":"thisis string","prob":3.9991624894421184e-11},{"origin":"facebookiscool","result":"facebook is cool","prob":3.0183641197357495e-11},{"origin":"whatdoyouwant","result":"whatdoyou want","prob":7.057345569603739e-11}],"Length":3}
+$ ./virtebi-corpus -format=json -withprob=true "facebookiscool" "whatdoyouwant"  
+{"items":[{"origin":"facebookiscool","result":"facebook is cool","prob":3.0183641197357495e-11},{"origin":"whatdoyouwant","result":"whatdoyou want","prob":7.057345569603739e-11}],"Length":3}
 
 ```
 
 ## RAW
 Finally, raw
 ```
-$ ./virtebi-corpus -format=json -withprob=true -raw=true "thisisstring" "facebookiscool" "whatdoyouwant"
-thisis string
+$ ./virtebi-corpus -format=json -withprob=true -raw=true "facebookiscool" "whatdoyouwant"
 facebook is cool
 whatdoyou want
 ```

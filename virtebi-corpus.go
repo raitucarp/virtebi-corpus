@@ -314,7 +314,7 @@ func main() {
 	if len(tail) < 1 {
 		fmt.Fprintf(os.Stderr, "Usage of %s:\n", os.Args[0])
 		flag.PrintDefaults()
-		fmt.Println("example:", os.Args[0], `-format=json "thisisstring" "facebookiscool" "whatdoyouwant"`)
+		fmt.Println("example:", os.Args[0], `-format=json "facebookiscool" "whatdoyouwant"`)
 	}
 
 	// iterate tail, and apply corpus.match.
