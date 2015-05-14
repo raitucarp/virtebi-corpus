@@ -33,10 +33,9 @@ type Corpus struct {
 // load the corpus into existence,
 // let the war begin
 func (c *Corpus) Load() {
-
-
-	// if it's not found
-	// then builddictionary from text
+	// if it's already built
+	// then load from database,
+	// else load from text and insert to db,
 	// maybe this is take longer time
 	// because it's first build database
 	if c.IsAlreadyBuilt() {
@@ -44,7 +43,7 @@ func (c *Corpus) Load() {
 		c.buildDictionaryFromCache()
 	} else {
 		// build from corpus.txt
-		c.buildDictionaryFromText()
+		c.buildDictionaryFromText(false)
 	}
 
 	// set max value
@@ -57,7 +56,7 @@ func (c *Corpus) Load() {
 // that is corpus.txt. It's important to keep
 // corpus.txt and dont delete it.
 // Especially from very early corpus build.
-func (c *Corpus) buildDictionaryFromText() {
+func (c *Corpus) buildDictionaryFromText(withProgressbar bool) {
 	// open corpus.db
 	// corpus.db is standard db name
 	db, err := leveldb.OpenFile("corpus.db", nil)
@@ -82,7 +81,7 @@ func (c *Corpus) buildDictionaryFromText() {
 	// convert byte to string
 	text := string(contents)
 
-	c.saveToDB(text, db)
+	c.saveToDB(withProgressbar, text, db)
 }
 
 func (c *Corpus) IsAlreadyBuilt() bool {
@@ -109,15 +108,21 @@ func (c *Corpus) IsAlreadyBuilt() bool {
 	}
 }
 
+// manually build the database
+// actually it's just call build fromtext
 func (c *Corpus) Build() {
-	c.buildDictionaryFromText()
+	c.buildDictionaryFromText(true)
 }
 
-func (c *Corpus) saveToDB(text string, db *leveldb.DB) {
+// save corpus text to database
+func (c *Corpus) saveToDB(withProgressbar bool, text string, db *leveldb.DB) {
 	dictionary := make(map[string]float64)
 	words := strings.Split(text, "\n")
-	bar := pb.StartNew(len(words))
-	fmt.Println("Please wait for build corpus.db")
+	var bar *pb.ProgressBar
+	if withProgressbar {
+		bar =  pb.StartNew(len(words))
+		fmt.Println("Please wait for build corpus.db")
+	}
 	for i := 0; i < len(words); i++ {
 		word_score := strings.Fields(words[i])
 		if len(word_score) > 1 {
@@ -126,9 +131,13 @@ func (c *Corpus) saveToDB(text string, db *leveldb.DB) {
 			dictionary[word], _ = strconv.ParseFloat(score, 64)
 			db.Put([]byte(word), []byte(score), nil)
 		}
-		bar.Increment()
+		if withProgressbar {
+			bar.Increment()
+		}
 	}
-	fmt.Println("Build corpus.db done.")
+	if withProgressbar {
+		fmt.Println("Build corpus.db done.")
+	}
 	c.Dictionary = dictionary
 }
 
@@ -265,28 +274,6 @@ func (c *Corpus) Match(text string) (string, string, float64) {
 func NewCorpus() *Corpus {
 	corpus := new(Corpus)
 	return corpus
-}
-
-// Search entire text, assign value to the word.
-// Based on their distribution cmiiw
-func groupCorpus(text string) map[string]float64 {
-	a := make(map[string]float64)
-
-	words := strings.Split(text, "\n")
-	for i := 0; i < len(words); i++ {
-		word_score := strings.Fields(words[i])
-		if len(word_score) > 1 {
-			word := word_score[0]
-			score := word_score[1]
-			a[word], _ = strconv.ParseFloat(score, 64)
-		}
-		fmt.Println(word_score)
-	}
-	/*for i := 0; i < len(words); i++ {
-		word := words[i]
-		a[word] = a[word] + 1
-	}*/
-	return a
 }
 
 // Search word probability
