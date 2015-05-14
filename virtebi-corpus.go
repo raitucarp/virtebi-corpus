@@ -61,7 +61,7 @@ func isDatabaseExist() bool {
 // main job
 func main() {
 	// initialize new corpus
-	corpus := corpus.NewCorpus()
+	c := corpus.NewCorpus()
 
 	// flag formatting
 	formatting := flag.String("format", "text", "print result with formating, json, xml or text")
@@ -84,20 +84,20 @@ func main() {
 	tail := flag.Args()
 
 	if *build {
-		if !corpus.IsAlreadyBuilt() {
-			corpus.Build()
+		if !c.IsAlreadyBuilt() {
+			c.Build()
 		} else {
 			fmt.Println("corpus.db is already built")
 		}
 		os.Exit(0)
 	}
 
-	if !corpus.IsAlreadyBuilt() {
+	if !c.IsAlreadyBuilt() {
 		fmt.Println("You have no db. Please build the database, by using -build=true")
 		flag.PrintDefaults()
 		os.Exit(0)
 	} else {
-		corpus.Load()
+		c.Load()
 	}
 
 
@@ -113,7 +113,7 @@ func main() {
 	// Create Item for each result
 	for i := 0; i < len(tail); i++ {
 		// match in corpus
-		origin, result, prob := corpus.Match(tail[i])
+		origin, result, prob := c.Match(tail[i])
 		// create item
 		r := Item{
 			Origin: origin,
