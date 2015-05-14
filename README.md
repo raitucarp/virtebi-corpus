@@ -9,9 +9,37 @@ If you setup go environment correctly, then you can do this
 ```
 go install https://github.com/raitucarp/go.virtebi.corpus 
 ```
+Please see commandline usage
 
-I do not release binary build yet. Maybe soon
+note: I do not release binary build yet. Maybe soon
 
+
+# How to use it as Package
+first get it
+```
+go get https://github.com/raitucarp/go.virtebi.corpus 
+```
+then include it
+```
+package main
+
+import (
+	"fmt"
+	"github.com/raitucarp/go.virtebi.corpus/corpus"
+)
+
+func main() {
+	c := corpus.NewCorpus()
+	// you need to load it manually
+	// it will takes longer time for its first build
+	// corpus.db
+	c.Load()
+
+	origin, result, prob := c.Match("facebook is true")
+	fmt.Println(origin, result, prob)
+}
+
+```
 
 # Usage
 ```
@@ -72,12 +100,13 @@ You can't do formating(json, xml, text) or pass withprob true, because raw is ju
 - Collect more complete corpus
 - Fix some bugs
 - Refactor some algorithm
-- Doing with whitespace, etc
+- create http server
+- ~~Doing with whitespace, etc~~
 
 # Bugs
-Currently, If I want to parse this string "thisisstring" it would output: "thisis string".
+~~Currently, If I want to parse this string "thisisstring" it would output: "thisis string".
 "thisisastring" to thisis a string, etc
-I want you to help me to find out what is going on.
+I want you to help me to find out what is going on.~~
 
 # License
 The MIT License (MIT)
