@@ -35,7 +35,7 @@ func main() {
 	// corpus.db
 	c.Load()
 
-	origin, result, prob := c.Match("facebook is true")
+	origin, result, prob := c.Match("facebookistrue")
 	fmt.Println(origin, result, prob)
 }
 
