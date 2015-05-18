@@ -5,7 +5,7 @@ import (
 	"encoding/xml"
 	"flag"
 	"fmt"
-	"github.com/raitucarp/go.virtebi.corpus/corpus"
+	"github.com/raitucarp/virtebi-segment"
 	"github.com/syndtr/goleveldb/leveldb"
 	"os"
 	"strconv"
@@ -23,10 +23,11 @@ type Item struct {
 
 // Output structure
 type Output struct {
+	XMLName xml.Name `json:"-" xml:"results"`
 	// Items array, is collection of items
 	Items []Item `json:"items" xml:"items"`
 	// how many text being parsed?
-	Length int `json:="length" xml:"items"`
+	Length int `json:"length" xml:"length"`
 }
 
 var results []Item
@@ -61,7 +62,7 @@ func isDatabaseExist() bool {
 // main job
 func main() {
 	// initialize new corpus
-	c := corpus.NewCorpus()
+	c := virtebi.NewCorpus()
 
 	// flag formatting
 	formatting := flag.String("format", "text", "print result with formating, json, xml or text")
@@ -85,7 +86,7 @@ func main() {
 
 	if *build {
 		if !c.IsAlreadyBuilt() {
-			c.Build()
+			c.Build("corpus.txt")
 		} else {
 			fmt.Println("corpus.db is already built")
 		}
@@ -97,7 +98,7 @@ func main() {
 		flag.PrintDefaults()
 		os.Exit(0)
 	} else {
-		c.Load()
+		c.LoadCorpus("corpus.txt")
 	}
 
 
@@ -105,15 +106,17 @@ func main() {
 	if len(tail) < 1 {
 		fmt.Fprintf(os.Stderr, "Usage of %s:\n", os.Args[0])
 		flag.PrintDefaults()
-		fmt.Println("example:", os.Args[0], `-format=json "facebookiscool" "whatdoyouwant"`)
+		fmt.Println("example:", os.Args[0], `-format=json "facebookiscool" "whatdoyouwant" "thisisatext"`)
 		os.Exit(0)
 	}
 
 	// iterate tail, and apply corpus.match.
 	// Create Item for each result
 	for i := 0; i < len(tail); i++ {
+		// origin
+		origin := tail[i]
 		// match in corpus
-		origin, result, prob := c.Match(tail[i])
+		result, prob := c.Segment(tail[i])
 		// create item
 		r := Item{
 			Origin: origin,
@@ -135,52 +138,53 @@ func main() {
 	o.Items = results
 	o.Length = len(results)
 
-	if *listen > 0 {
+	if *listen > 1000 {
 		fmt.Println("use http server")
-	}
-
-	if *raw {
-		// print result per line
-		for i := 0; i < len(o.Items); i++ {
-			item := o.Items[i]
-			fmt.Println(item.Result)
-		}
-		os.Exit(0)
-	}
-
-	// if raw,
-	// just prints result perline.
-	// No matters other flag is
-
-	// get formatting
-	switch *formatting {
-	// if json then do marshaling
-	case "json":
-		output, _ := json.Marshal(o)
-		fmt.Println(string(output))
-	// xml format same as json
-	case "xml":
-		output, _ := xml.Marshal(o)
-		fmt.Println(string(output))
-	// text is a bit complicated,
-	// because it's separated by tab and line
-	case "text":
-		header := "Length = " + strconv.Itoa(o.Length) + "\n"
-		header += "Original\t\tResult"
-		if *withProbe {
-			header += "\t\tProb"
-		}
-
-		// print header
-		fmt.Println(header)
-		// print the text
-		for i := 0; i < len(o.Items); i++ {
-			item := o.Items[i]
-			output := item.Origin + "\t\t" + item.Result
-			if *withProbe {
-				output += "\t\t" + strconv.FormatFloat(item.Prob, 'f', -1, 64)
+	} else {
+		if *raw {
+			// print result per line
+			for i := 0; i < len(o.Items); i++ {
+				item := o.Items[i]
+				fmt.Println(item.Result)
 			}
-			fmt.Println(output)
+			os.Exit(0)
+		}
+
+		// if raw,
+		// just prints result perline.
+		// No matters other flag is
+
+		// get formatting
+		switch *formatting {
+			// if json then do marshaling
+			case "json":
+			output, _ := json.Marshal(o)
+			fmt.Println(string(output))
+			// xml format same as json
+			case "xml":
+			output, _ := xml.Marshal(o)
+			fmt.Println(string(output))
+			// text is a bit complicated,
+			// because it's separated by tab and line
+			case "text":
+			header := "Length = " + strconv.Itoa(o.Length) + "\n"
+			header += "Original\t\tResult"
+			if *withProbe {
+				header += "\t\tProb"
+			}
+
+			// print header
+			fmt.Println(header)
+			// print the text
+			for i := 0; i < len(o.Items); i++ {
+				item := o.Items[i]
+				output := item.Origin + "\t\t" + item.Result
+				if *withProbe {
+					output += "\t\t" + strconv.FormatFloat(item.Prob, 'f', -1, 64)
+				}
+				fmt.Println(output)
+			}
 		}
 	}
+
 }

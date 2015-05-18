@@ -13,41 +13,16 @@ Please see commandline usage
 
 note: I do not release binary build yet. Maybe soon
 
-
-# How to use it as Package
-first get it
-```
-go get https://github.com/raitucarp/go.virtebi.corpus 
-```
-then include it
-```
-package main
-
-import (
-	"fmt"
-	"github.com/raitucarp/go.virtebi.corpus/corpus"
-)
-
-func main() {
-	c := corpus.NewCorpus()
-	// you need to load it manually
-	// it will takes longer time for its first build
-	// corpus.db
-	c.Load()
-
-	origin, result, prob := c.Match("facebookistrue")
-	fmt.Println(origin, result, prob)
-}
-
-```
-
 # Usage
 ```
 Usage of ./virtebi-corpus:
+  -build=false: build corpus database
   -format="text": print result with formating, json, xml or text
+  -listen=0: create http server that listen to a port, example -listen=8989
   -raw=false: print result in raw per line, it does not use any format
   -withprob=false: print probes value
-example: ./virtebi-corpus -format=json "facebookiscool" "whatdoyouwant"
+  
+example: ./virtebi-corpus -format=json "facebookiscool" "whatdoyouwant" "thisisatext"
 
 ```
 
@@ -56,47 +31,45 @@ Here are some example doing it, with all of command line flag
 
 ## JSON formatting
 ```
-$ ./virtebi-corpus -format=json "facebookiscool" "whatdoyouwant"
-{"items":[{"origin":"facebookiscool","result":"facebook is cool"},{"origin":"whatdoyouwant","result":"whatdoyou want"}],"Length":3}
-
+$ ./virtebi-corpus -format=json "facebookiscool" "whatdoyouwant" "thisisatext"
+{"items":[{"origin":"facebookiscool","result":"facebook is cool"},{"origin":"whatdoyouwant","result":"what do you want"},{"origin":"thisisatext","result":"this is a text"}],"Length":3}
 ```
 
 ## XML formatting
 ```
-$ ./virtebi-corpus -format=xml "facebookiscool" "whatdoyouwant" 
-<Output></items><items><origin>facebookiscool</origin><result>facebook is cool</result></items><items><origin>whatdoyouwant</origin><result>whatdoyou want</result></items><Length>3</Length></Output>
-
+$ ./virtebi-corpus -format=xml "facebookiscool" "whatdoyouwant"
+<results><items><origin>facebookiscool</origin><result>facebook is cool</result></items><items><origin>whatdoyouwant</origin><result>what do you want</result></items><length>2</length></results>
 ```
 
 ## Text formatting
 this example is withprob value 
 ```
-$ ./virtebi-corpus -withprob "facebookiscool" "whatdoyouwant"  
-Length = 3
+$ ./virtebi-corpus -withprob "facebookiscool" "whatdoyouwant" 
+Length = 2
 Original		Result		Prob
-facebookiscool		facebook is cool		0.000000000030183641197357495
-whatdoyouwant		whatdoyou want		0.00000000007057345569603739
+facebookiscool		facebook is cool		0.00000000042221252134040073
+whatdoyouwant		what do you want		0.00000000006427053322919637
 ```
 
 ## JSON with probvalue
 ```
-$ ./virtebi-corpus -format=json -withprob=true "facebookiscool" "whatdoyouwant"  
-{"items":[{"origin":"facebookiscool","result":"facebook is cool","prob":3.0183641197357495e-11},{"origin":"whatdoyouwant","result":"whatdoyou want","prob":7.057345569603739e-11}],"Length":3}
-
+$ ./virtebi-corpus -format=json -withprob=true "facebookiscool" "whatdoyouwant"
+{"items":[{"origin":"facebookiscool","result":"facebook is cool","prob":4.2221252134040073e-10},{"origin":"whatdoyouwant","result":"what do you want","prob":6.427053322919637e-11}],"length":2}
 ```
 
 ## RAW
 Finally, raw
 ```
-$ ./virtebi-corpus -format=json -withprob=true -raw=true "facebookiscool" "whatdoyouwant"
+$ ./virtebi-corpus -format=json -withprob=true -raw=true "facebookiscool" "whatdoyouwant"  "thistextislong"
 facebook is cool
-whatdoyou want
+what do you want
+this text is long
 ```
 
-You can't do formating(json, xml, text) or pass withprob true, because raw is just kind of raw text. It contains result per line
+You can't do formating(json, xml, text) or pass withprob with raw formatting, because raw is just kind of raw text. It contains result per line
 
 # TODO
-- Write testing
+- ~~Write testing~~
 - Collect more complete corpus
 - Fix some bugs
 - Refactor some algorithm
@@ -104,9 +77,8 @@ You can't do formating(json, xml, text) or pass withprob true, because raw is ju
 - ~~Doing with whitespace, etc~~
 
 # Bugs
-~~Currently, If I want to parse this string "thisisstring" it would output: "thisis string".
-"thisisastring" to thisis a string, etc
-I want you to help me to find out what is going on.~~
+Currently, If I want to parse this string "thisisactuallyalongtext" it would output: "is actually along text".
+I will investigate this case more in the future
 
 # License
 The MIT License (MIT)
